@@ -1,6 +1,6 @@
 # BERT Airline Sentiment Analysis Dashboard
 
-Aspect-Based Sentiment Analysis (ABSA) for airline reviews using BERT transformer model.
+Aspect-Based Sentiment Analysis (ABSA) for airline reviews using a fine-tuned BERT model, presented through a Streamlit dashboard.
 
 ## Overview
 
@@ -8,11 +8,38 @@ This project analyzes airline reviews to extract sentiment for different aspects
 
 ## Features
 
-- **BERT-based Sentiment Analysis** - Uses pre-trained BERT model for accurate sentiment classification
-- **Aspect-Based Analysis** - Extracts sentiment for specific flight aspects (food, seat, crew, etc.)
-- **Real-time Dashboard** - Live monitoring of sentiment metrics using Streamlit
-- **Flight Data Pipeline** - Processes incoming flight CSVs automatically
-- **Historical Tracking** - Maintains history of sentiment trends per flight
+- **BERT-based Sentiment Analysis** — Fine-tuned binary classifier (positive/negative)
+- **Aspect extraction** — Rule-based aspect pickers per sentence (food, seat, crew, staff, entertainment, comfort, flight, check-in, baggage)
+- **Live dashboard** — Process/skip flights, auto-rerun after ingestion, and view trend lines + gauges
+- **Flight pipeline** — Reads flight CSVs from `ABSA_UI/incoming_flights/` with naming `FLIGHT_ROUTE_YYYYMMDD_HHMM.csv`
+- **History + deltas** — Stores per-aspect history, shows latest vs previous flight deltas
+
+## How it works
+
+1) Drop flight CSVs into `ABSA_UI/incoming_flights/` (one row per review; expected column `Cleaned_Reviews` or `review`/`Review`/`cleaned_review`).
+2) Click **Process This Flight** in the dashboard. Each review is split into sentences, aspects are matched, sentiments predicted via BERT, and appended to `airline_reviews_with_aspect_sentiments.csv`.
+3) Per-flight aspect positive rates are computed and stored in `state.json` to drive gauges and trend charts.
+
+## Quick start (local)
+
+```bash
+git clone https://github.com/Tahir-2802/Sentimental-Analysis-of-Airline-Reviews.git
+cd Sentimental-Analysis-of-Airline-Reviews
+pip install -r requirements.txt
+python -c "import nltk; nltk.download('punkt')"
+python -m streamlit run FINAL_PRODUCT.py
+```
+
+### Add a sample flight
+
+```powershell
+Copy-Item "ABSA_UI\samples\AI301_sample.csv" "ABSA_UI\incoming_flights\AI301_BOM-DEL_20251001_0600.csv" -Force
+```
+Then refresh the app and press **Process This Flight**.
+
+### Reset state (if needed)
+
+Delete `ABSA_UI/state.json` to reset processed/next-file tracking and charts.
 
 ## Screenshots
 
@@ -58,36 +85,32 @@ python -c "import nltk; nltk.download('punkt')"
 ```
 
 4. **Add BERT Model Files**:
-   - The trained BERT model files are too large for GitHub
-   - Place your model files in `ABSA_UI/Model/`:
-     - `config.json`
-     - `vocab.txt`
-     - `model.safetensors` (or `pytorch_model.bin`)
-     - `training_args.bin`
-  - Or train your own model using your airline reviews dataset
+  - Place model artifacts in `ABSA_UI/Model/`:
+    - `config.json`
+    - `vocab.txt`
+    - `model.safetensors` (or `pytorch_model.bin`)
+    - `training_args.bin`
+  - These are tracked with Git LFS; if you don’t have them locally, download/provide your own fine-tuned weights.
 
 5. Optional: Use sample data
-  - A tiny sample is provided in `ABSA_UI/samples/AI301_sample.csv`
-  - To test quickly, copy it into `ABSA_UI/incoming_flights/`:
-```powershell
-Copy-Item "ABSA_UI/samples/AI301_sample.csv" "ABSA_UI/incoming_flights/AI301_BOM-DEL_20251001_0600.csv" -Force
-```
+   - A tiny sample is provided in `ABSA_UI/samples/AI301_sample.csv`
+   - Copy it into `ABSA_UI/incoming_flights/` to simulate a flight (see quick start snippet above)
 
 ## Usage
 
 Run the Streamlit dashboard:
 
 ```bash
-streamlit run FINAL_PRODUCT.py
+python -m streamlit run FINAL_PRODUCT.py
 ```
 
-The application will start on `http://localhost:8501`
+The app will start on `http://localhost:8501`.
 
 ### Dashboard Features
-- **Auto-refresh** - Continuously monitors incoming flight data
-- **Aspect Gauges** - Visual indicators for each sentiment aspect
-- **Flight Tracking** - Real-time processing of new flights
-- **History Charts** - Sentiment trends over time
+- **Flight queue** — Lists incoming flight CSVs; mark processed/next/queued
+- **Process / Skip** — Process a flight or skip to the next without ingestion
+- **Trend chart** — Aspect positive% over flight time
+- **Gauges** — Latest vs previous flight delta per aspect
 
 ## Configuration
 
@@ -99,10 +122,10 @@ Edit `FINAL_PRODUCT.py` to modify:
 
 ## Model Details
 
-- **Model Type**: BERT (Bidirectional Encoder Representations from Transformers)
-- **Input**: Review text
-- **Output**: Sentiment classification (Positive/Negative/Neutral)
-- **Location**: `ABSA_UI/Model/`
+- **Model**: BERT sequence classifier (binary positive/negative)
+- **Tokenizer/Weights**: `ABSA_UI/Model/` (tracked via Git LFS)
+- **Max length**: `MAX_SEQ_LEN` (default 128)
+- **Device**: Auto-selects CUDA if available, else CPU
 
 ## Data Format
 
