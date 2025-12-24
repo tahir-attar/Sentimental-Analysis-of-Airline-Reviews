@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Data files (too large or runtime-generated)
+*.csv
+incoming_flights/
+*.json
+
+# Model files (too large for GitHub)
+ABSA_UI/Model/*.safetensors
+ABSA_UI/Model/*.bin
+!ABSA_UI/Model/config.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
