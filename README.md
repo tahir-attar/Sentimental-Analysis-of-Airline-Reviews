@@ -14,6 +14,11 @@ This project analyzes airline reviews to extract sentiment for different aspects
 - **Flight Data Pipeline** - Processes incoming flight CSVs automatically
 - **Historical Tracking** - Maintains history of sentiment trends per flight
 
+## Screenshots
+
+![Flight list view](docs/img/dashboard-list.png)
+![Aspect gauges](docs/img/dashboard-gauges.png)
+
 ## Project Structure
 
 ```
