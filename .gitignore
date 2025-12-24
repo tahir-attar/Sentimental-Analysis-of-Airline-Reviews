@@ -16,6 +16,10 @@ build/
 incoming_flights/
 *.json
 
+# Allow tracked incoming flight samples
+!ABSA_UI/incoming_flights/
+!ABSA_UI/incoming_flights/*.csv
+
 # Allow model files (tracked via Git LFS)
 !ABSA_UI/Model/config.json
 !ABSA_UI/Model/*.safetensors
